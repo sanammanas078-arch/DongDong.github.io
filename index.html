@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冬冬的绘本 - 云朵外套篇</title>
+    <style>
+        :root {
+            --bg-color: #fdfae5; 
+            --sparkle-color: rgba(255, 255, 180, 0.9);
+            --spine-color: rgba(84, 50, 20, 0.3); 
+            --flip-duration: 1500ms; 
+            --music-amber: #D2691E; 
+            --music-amber-light: #E68A2E;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#f1e1a6 0.8px, transparent 0.8px);
+            background-size: 25px 25px;
+            overflow: hidden; cursor: none;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            perspective: 3000px;
+        }
+
+        .book {
+            position: relative;
+            width: 96vw; 
+            height: 54vw; 
+            max-height: 88vh; 
+            max-width: 156vh;
+            transform-style: preserve-3d;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.4);
+            background: #fff;
+        }
+
+        .spine {
+            position: absolute;
+            left: 50%; top: 0; 
+            width: 1px; 
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--spine-color) 50%, transparent);
+            z-index: 3000; 
+            pointer-events: none;
+            transform: translateX(-50%);
+        }
+
+        .paper {
+            position: absolute;
+            width: 50%; height: 100%;
+            top: 0; right: 0;
+            transform-origin: left;
+            transform-style: preserve-3d;
+            transition: transform var(--flip-duration) cubic-bezier(0.645, 0.045, 0.355, 1);
+            z-index: 1;
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            backface-visibility: hidden;
+            overflow: hidden;
+        }
+
+        .back { transform: rotateY(180deg); }
+
+        img {
+            width: 200%; height: 100%;
+            object-fit: cover;
+            position: absolute; top: 0;
+        }
+
+        .front img { right: 0; }
+        .back img { left: 0; }
+
+        /* 最后一页寄语页样式 */
+        .message-page {
+            width: 100%; height: 100%;
+            background-color: #fff9e6;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        /* 星星平铺背景 */
+        .message-page::before {
+            content: "★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ";
+            position: absolute;
+            font-size: 20px;
+            color: rgba(210, 105, 30, 0.15);
+            transform: rotate(-15deg);
+            white-space: pre;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            line-height: 2.5;
+            pointer-events: none;
+        }
+
+        .message-box {
+            border: 3px solid var(--music-amber);
+            padding: 30px 40px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 15px rgba(210, 105, 30, 0.1);
+            text-align: center;
+            max-width: 70%;
+            z-index: 1;
+        }
+
+        .message-text {
+            color: var(--music-amber);
+            font-size: 24px;
+            font-family: "STKaiti", "KaiTi", "Microsoft YaHei", serif;
+            font-weight: bold;
+            line-height: 1.8;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .base-page {
+            position: absolute;
+            width: 50%; height: 100%;
+            top: 0; overflow: hidden;
+        }
+        .base-left { left: 0; z-index: 0; }
+        .base-right { right: 0; z-index: 0; }
+
+        .flipped { transform: rotateY(-180deg); }
+
+        .music-player {
+            margin-top: 15px; padding: 6px 20px;
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 50px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 12px;
+            z-index: 5000; border: 1px solid #eee;
+        }
+
+        .music-btn {
+            background: var(--music-amber); border: none; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s; color: #fff; font-size: 14px;
+        }
+
+        .music-btn:hover { transform: scale(1.1); background: var(--music-amber-light); }
+        .music-info { font-size: 14px; color: var(--music-amber); font-family: 'Georgia', serif; font-style: italic; letter-spacing: 0.5px; }
+
+        #sparkle {
+            width: 15px; height: 15px;
+            background: radial-gradient(circle, #fff, var(--sparkle-color));
+            box-shadow: 0 0 15px 5px var(--sparkle-color);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999;
+        }
+
+        .trail-particle { position: fixed; pointer-events: none; z-index: 9998; background: var(--sparkle-color); border-radius: 50%; box-shadow: 0 0 8px var(--sparkle-color); }
+        .nav { position: absolute; width: 50%; height: 100%; top: 0; z-index: 2000; }
+        .nav-left { left: 0; }
+        .nav-right { right: 0; }
+    </style>
+</head>
+<body>
+
+<div id="sparkle"></div>
+
+<div class="book">
+    <div class="spine"></div>
+    <div class="nav nav-left" onclick="prev()"></div>
+    <div class="nav nav-right" onclick="next()"></div>
+
+    <div class="base-page base-right">
+        <div class="message-page">
+            <div class="message-box">
+                <p class="message-text">接纳自己，存在本身，<br>就是一份珍贵的礼物。</p>
+            </div>
+        </div>
+    </div>
+    <div class="base-page base-left" style="z-index: 0;"><img src="封面.jpg"></div>
+
+    <script>
+        const book = document.querySelector('.book');
+        // 现在我们需要生成 68 页纸来容纳 封面 + 1.jpg~67.jpg + 寄语
+        // i=1 是封面，i=68 是最后一页
+        for (let i = 68; i >= 1; i--) {
+            const paper = document.createElement('div');
+            paper.className = 'paper';
+            paper.id = `p${i}`;
+            paper.style.zIndex = 69 - i;
+            
+            if (i === 1) {
+                // 第一页纸：正面是 封面.jpg，背面是 1.jpg
+                paper.innerHTML = `
+                    <div class="front"><img src="封面.jpg"></div>
+                    <div class="back"><img src="1.jpg"></div>
+                `;
+            } else if (i === 68) {
+                // 最后一张纸：正面是 67.jpg，背面是淡黄色空白
+                paper.innerHTML = `
+                    <div class="front"><img src="67.jpg"></div>
+                    <div class="back" style="background-color: #fff9e6;"></div>
+                `;
+            } else {
+                // 中间页码逻辑：第 i 张纸正面是 (i-1).jpg，背面是 i.jpg
+                paper.innerHTML = `
+                    <div class="front"><img src="${i-1}.jpg"></div>
+                    <div class="back"><img src="${i}.jpg"></div>
+                `;
+            }
+            book.appendChild(paper);
+        }
+    </script>
+</div>
+
+<div class="music-player">
+    <button class="music-btn" onclick="toggleMusic()" id="playBtn">▶</button>
+    <div class="music-info">BGM: Gotta Have You</div>
+    <audio id="bgm" loop>
+        <source src="The Weepies _ Deb Talan _ Steve Tannen - Gotta Have You (网友改编).ogg" type="audio/ogg">
+    </audio>
+</div>
+
+<script>
+    const sparkle = document.getElementById('sparkle');
+    const bgm = document.getElementById('bgm');
+    const playBtn = document.getElementById('playBtn');
+    let current = 1;
+    const total = 68; // 总翻页数更新为 68
+    const duration = 1500;
+
+    document.addEventListener('mousemove', (e) => {
+        sparkle.style.left = e.clientX - 7 + 'px';
+        sparkle.style.top = e.clientY - 7 + 'px';
+        for (let i = 0; i < 3; i++) { createParticle(e.clientX, e.clientY); }
+    });
+
+    function createParticle(x, y) {
+        const p = document.createElement('div');
+        p.className = 'trail-particle';
+        const size = Math.random() * 6 + 2;
+        p.style.width = size + 'px'; p.style.height = size + 'px';
+        p.style.left = x + 'px'; p.style.top = y + 'px';
+        document.body.appendChild(p);
+        const destinationX = (Math.random() - 0.5) * 100;
+        const destinationY = (Math.random() - 0.5) * 100;
+        const anim = p.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 0.8 }, { transform: `translate(${destinationX}px, ${destinationY}px) scale(0)`, opacity: 0 }], { duration: Math.random() * 800 + 400, easing: 'cubic-bezier(0, .9, .57, 1)' });
+        anim.onfinish = () => p.remove();
+    }
+
+    function toggleMusic() {
+        if (bgm.paused) { bgm.play(); playBtn.innerText = "⏸"; }
+        else { bgm.pause(); playBtn.innerText = "▶"; }
+    }
+
+    function next() {
+        if (current <= total) {
+            const el = document.getElementById(`p${current}`);
+            el.classList.add('flipped');
+            el.style.zIndex = 100 + current;
+            current++;
+        }
+    }
+
+    function prev() {
+        if (current > 1) {
+            current--;
+            const el = document.getElementById(`p${current}`);
+            el.classList.remove('flipped');
+            el.style.zIndex = 200; 
+            setTimeout(() => { el.style.zIndex = (69 - current) + 1; }, duration);
+        }
+    }
+</script>
+</body>
+</html>
